@@ -5,26 +5,26 @@ from dotenv import load_dotenv
 load_dotenv()
 
 report_structure = """
-1. Introduction
-- Brief overview of the research topic or question.
-- Purpose and scope of the report.
+1. 引言
+- 研究主題或問題的簡要概述。
+- 報告的目的和範圍。
 
-2. Main Body
-- For each section (e.g., Section 1, Section 2, Section 3, etc.):
-  - Provide a subheading related to the key aspect of the research.
-  - Include explanation, findings, and supporting details.
+2. 主體內容
+- 對於每個部分（例如，第1節，第2節，第3節等）：
+  - 提供與研究關鍵方面相關的小標題。
+  - 包含解釋、發現和支持細節。
 
-3. Key Takeaways
-- Bullet points summarizing the most important insights or findings.
+3. 關鍵要點
+- 總結最重要的見解或發現的要點。
 
-4. Conclusion
-- Final summary of the research.
-- Implications or relevance of the findings.
+4. 結論
+- 研究的最終總結。
+- 發現的意義或相關性。
 """
 
-# Define the initial state
+# 定義初始狀態
 initial_state = {
-    "user_instructions": "Can you help me understand the current state of AI reasoning models, particularly DeepSeek R-1? I keep hearing about breakthroughs in mathematical reasoning and problem-solving capabilities, but I want to know how these models are actually being implemented and used in real applications. I am Really interested in learning about its performance compared to other LLMs, what makes its training approach unique, and if there are any concerns about reliability or limitations. Looking for recent benchmarks and real-world applications, not just theoretical capabilities.",
+    "user_instructions": "你能幫我了解 AI 推理模型的當前狀態，特別是 DeepSeek R-1 嗎？我一直聽說數學推理和問題解決能力的突破，但我想知道這些模型實際上是如何在真實應用中實現和使用的。我非常有興趣了解它與其他 LLM 相比的性能，其訓練方法的獨特之處，以及是否有任何關於可靠性或限制的擔憂。我尋找的是最新的基準測試和真實世界的應用，而不僅僅是理論上的能力。",
 }
 
 # Langgraph researcher config

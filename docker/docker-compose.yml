@@ -1,0 +1,52 @@
+version: '3'
+
+services:
+  streamlit:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ..:/app
+    environment:
+      - OLLAMA_HOST=ollama
+    env_file:
+      - ../.env
+    depends_on:
+      - ollama
+    networks:
+      - rag-network
+
+  linebot:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.linebot
+    ports:
+      - "8000:8000"
+    volumes:
+      - ..:/app
+    environment:
+      - OLLAMA_HOST=ollama
+    env_file:
+      - ../.env
+    depends_on:
+      - ollama
+    networks:
+      - rag-network
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - rag-network
+
+volumes:
+  ollama_data:
+
+networks:
+  rag-network:
+    driver: bridge
