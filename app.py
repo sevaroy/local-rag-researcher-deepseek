@@ -24,13 +24,13 @@ def generate_response(user_input, enable_web_search, report_structure, max_searc
     }}
 
     # Create the status for the global "Researcher" process
-    langgraph_status = st.status("**Researcher Running...**", state="running")
+    langgraph_status = st.status("**研究員正在運行...**", state="running")
 
     # Force order of expanders by creating them before iteration
     with langgraph_status:
-        generate_queries_expander = st.expander("Generate Research Queries", expanded=False)
-        search_queries_expander = st.expander("Search Queries", expanded=True)
-        final_answer_expander = st.expander("Generate Final Answer", expanded=False)
+        generate_queries_expander = st.expander("生成研究查詢", expanded=False)
+        search_queries_expander = st.expander("搜索查詢", expanded=True)
+        final_answer_expander = st.expander("生成最終答案", expanded=False)
 
         steps = []
 
@@ -55,7 +55,7 @@ def generate_response(user_input, enable_web_search, report_structure, max_searc
                 steps.append({"step": key, "content": value})
 
     # Update status to complete
-    langgraph_status.update(state="complete", label="**Using Langgraph** (Research completed)")
+    langgraph_status.update(state="complete", label="**使用 Langgraph** (研究已完成)")
 
     # Return the final report
     return steps[-1]["content"] if steps else "No response generated"
@@ -66,7 +66,7 @@ def clear_chat():
     st.session_state.uploader_key = 0
 
 def main():
-    st.set_page_config(page_title="DeepSeek RAG Researcher", layout="wide")
+    st.set_page_config(page_title="DeepSeek RAG 研究助手", layout="wide")
 
     # Initialize session states
     if "processing_complete" not in st.session_state:
@@ -85,21 +85,21 @@ def main():
     # Title row with clear button
     col1, col2 = st.columns([6, 1])
     with col1:
-        st.title("📄 RAG Researcher with DeepSeek R1")
+        st.title("📄 DeepSeek R1 RAG 研究助手")
     with col2:
-        if st.button("Clear Chat", use_container_width=True):
+        if st.button("清除對話", use_container_width=True):
             clear_chat()
             st.rerun()
 
     # Sidebar configuration
-    st.sidebar.title("Research Settings")
+    st.sidebar.title("研究設置")
 
     # Add report structure selector to sidebar
     report_structures = get_report_structures()
     default_report = "standard report"
 
     selected_structure = st.sidebar.selectbox(
-        "Select Report Structure",
+        "選擇報告結構",
         options=list(report_structures.keys()),
         index=list(map(str.lower, report_structures.keys())).index(default_report)
     )
@@ -108,18 +108,18 @@ def main():
 
     # Maximum search queries input
     st.session_state.max_search_queries = st.sidebar.number_input(
-        "Max Number of Search Queries",
+        "最大搜索查詢數量",
         min_value=1,
         max_value=10,
         value=st.session_state.max_search_queries,
-        help="Set the maximum number of search queries to be made. (1-10)"
+        help="設置要進行的最大搜索查詢數量。(1-10)"
     )
     
-    enable_web_search = st.sidebar.checkbox("Enable Web Search", value=False)
+    enable_web_search = st.sidebar.checkbox("啟用網絡搜索", value=False)
 
     # Upload file logic
     uploaded_files = st.sidebar.file_uploader(
-        "Upload New Documents",
+        "上傳新文檔",
         type=["pdf", "txt", "csv", "md"],
         accept_multiple_files=True,
         key=f"uploader_{st.session_state.uploader_key}"
@@ -135,18 +135,18 @@ def main():
         process_button_placeholder = st.sidebar.empty()  # Placeholder for dynamic updates
 
         with process_button_placeholder.container():
-            process_clicked = st.button("Process Files", use_container_width=True)
+            process_clicked = st.button("處理文件", use_container_width=True)
 
         if process_clicked:
             with process_button_placeholder:
-                with st.status("Processing files...", expanded=False) as status:
+                with st.status("正在處理文件...", expanded=False) as status:
                     # Process files (Replace this with your actual function)
                     if process_uploaded_files(uploaded_files):
                         st.session_state.processing_complete = True
                         st.session_state.files_ready = False  # Reset files ready flag
                         st.session_state.uploader_key += 1  # Reset uploader to allow new uploads
 
-                    status.update(label="Files processed successfully!", state="complete", expanded=False)
+                    status.update(label="文件處理成功！", state="complete", expanded=False)
                     # st.rerun()
 
     # Display chat messages
@@ -160,7 +160,7 @@ def main():
                     pyperclip.copy(message["content"])
 
     # Chat input and response handling
-    if user_input := st.chat_input("Type your message here..."):
+    if user_input := st.chat_input("在此輸入您的問題..."):
         # Add user message
         st.session_state.messages.append({"role": "user", "content": user_input})
         with st.chat_message("user"):
