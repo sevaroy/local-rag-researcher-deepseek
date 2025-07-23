@@ -6,6 +6,10 @@ from tavily import TavilyClient
 from pydantic import BaseModel
 from langchain_community.document_loaders import CSVLoader, TextLoader, PDFPlumberLoader
 from src.assistant.vector_db import add_documents
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 class Evaluation(BaseModel):
     is_relevant: bool
@@ -86,6 +90,40 @@ def invoke_llm(
     if output_format:
         return response
     return response.content # str response
+
+def invoke_model(system_prompt, user_prompt, output_format=None):
+    """
+    根据环境变量决定使用 Ollama 还是外部 LLM
+    
+    Args:
+        system_prompt (str): 系统提示
+        user_prompt (str): 用户提示
+        output_format (BaseModel, optional): 输出格式类
+        
+    Returns:
+        结果，根据 output_format 返回不同类型
+    """
+    # 从环境变量获取配置
+    use_ollama = os.getenv("USE_OLLAMA", "true").lower() == "true"
+    ollama_model = os.getenv("OLLAMA_MODEL", "deepseek-r1:7b")
+    external_model = os.getenv("EXTERNAL_LLM_MODEL", "gpt-4o-mini")
+    
+    if use_ollama:
+        print(f"Using Ollama with model: {ollama_model}")
+        return invoke_ollama(
+            model=ollama_model,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            output_format=output_format
+        )
+    else:
+        print(f"Using external LLM with model: {external_model}")
+        return invoke_llm(
+            model=external_model,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            output_format=output_format
+        )
 
 def tavily_search(query, include_raw_content=True, max_results=3):
     """ Search the web using the Tavily API.

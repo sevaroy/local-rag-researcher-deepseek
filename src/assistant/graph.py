@@ -7,7 +7,7 @@ from src.assistant.configuration import Configuration
 from src.assistant.vector_db import get_or_create_vector_db
 from src.assistant.state import ResearcherState, ResearcherStateInput, ResearcherStateOutput, QuerySearchState, QuerySearchStateInput, QuerySearchStateOutput
 from src.assistant.prompts import RESEARCH_QUERY_WRITER_PROMPT, RELEVANCE_EVALUATOR_PROMPT, SUMMARIZER_PROMPT, REPORT_WRITER_PROMPT
-from src.assistant.utils import format_documents_with_metadata, invoke_llm, invoke_ollama, parse_output, tavily_search, Evaluation, Queries
+from src.assistant.utils import format_documents_with_metadata, invoke_model, parse_output, tavily_search, Evaluation, Queries
 
 # Number of query to process in parallel for each batch
 # Change depending on the performance of the system
@@ -23,21 +23,12 @@ def generate_research_queries(state: ResearcherState, config: RunnableConfig):
         date=datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
     )
     
-    # Using local Deepseek R1 model with Ollama
-    result = invoke_ollama(
-        model='deepseek-r1:7b',
+    # 使用环境变量配置的模型
+    result = invoke_model(
         system_prompt=query_writer_prompt,
         user_prompt=f"Generate research queries for this user instruction: {user_instructions}",
         output_format=Queries
     )
-    
-    # Using external LLM providers with OpenRouter: GPT-4o, Claude, Deepseek R1,... 
-    # result = invoke_llm(
-    #     model='gpt-4o-mini',
-    #     system_prompt=query_writer_prompt,
-    #     user_prompt=f"Generate research queries for this user instruction: {user_instructions}",
-    #     output_format=Queries
-    # )
 
     return {"research_queries": result.queries}
 
@@ -100,21 +91,12 @@ def evaluate_retrieved_documents(state: QuerySearchState):
         documents=format_documents_with_metadata(retrieved_documents)
     )
     
-    # Using local Deepseek R1 model with Ollama
-    evaluation = invoke_ollama(
-        model='deepseek-r1:7b',
+    # 使用环境变量配置的模型
+    evaluation = invoke_model(
         system_prompt=evaluation_prompt,
         user_prompt=f"Evaluate the relevance of the retrieved documents for this query: {query}",
         output_format=Evaluation
     )
-    
-    # Using external LLM providers with OpenRouter: GPT-4o, Claude, Deepseek R1,... 
-    # evaluation = invoke_llm(
-    #     model='gpt-4o-mini',
-    #     system_prompt=evaluation_prompt,
-    #     user_prompt=f"Evaluate the relevance of the retrieved documents for this query: {query}",
-    #     output_format=Evaluation
-    # )
 
     return {"are_documents_relevant": evaluation.is_relevant}
 
@@ -153,21 +135,13 @@ def summarize_query_research(state: QuerySearchState):
         docmuents=information
     )
     
-    # Using local Deepseek R1 model with Ollama
-    summary = invoke_ollama(
-        model='deepseek-r1:7b',
+    # 使用环境变量配置的模型
+    summary = invoke_model(
         system_prompt=summary_prompt,
         user_prompt=f"Generate a research summary for this query: {query}"
     )
     # Remove thinking part (reasoning between <think> tags)
     summary = parse_output(summary)["response"]
-    
-    # Using external LLM providers with OpenRouter: GPT-4o, Claude, Deepseek R1,... 
-    # summary = invoke_llm(
-    #     model='gpt-4o-mini',
-    #     system_prompt=summary_prompt,
-    #     user_prompt=f"Generate a research summary for this query: {query}"
-    # )
 
     return {"search_summaries": [summary]}
 
@@ -180,21 +154,13 @@ def generate_final_answer(state: ResearcherState, config: RunnableConfig):
         information="\n\n---\n\n".join(state["search_summaries"])
     )
 
-    # Using local Deepseek R1 model with Ollama
-    result = invoke_ollama(
-        model='deepseek-r1:7b',
+    # 使用环境变量配置的模型
+    result = invoke_model(
         system_prompt=answer_prompt,
         user_prompt=f"Generate a research summary using the provided information."
     )
     # Remove thinking part (reasoning between <think> tags)
     answer = parse_output(result)["response"]
-    
-    # # Using external LLM providers with OpenRouter: GPT-4o, Claude, Deepseek R1,... 
-    # answer = invoke_llm(
-    #     model='gpt-4o-mini',
-    #     system_prompt=answer_prompt,
-    #     user_prompt=f"Generate a research summary using the provided information."
-    # )
     
     return {"final_answer": answer}
 
